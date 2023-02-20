@@ -11,6 +11,8 @@ class Recipes(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
+        blank=True,
+        upload_to='recipes/',
         verbose_name='Изображение'
     )
     text = models.TextField(
@@ -30,7 +32,8 @@ class Recipes(models.Model):
     #)
     tags = models.ManyToManyField(
         Tags,
-        verbose_name='Теги',
+        through='RecipesTags',
+        verbose_name='Теги'
     )
     ingredients = models.ManyToManyField(
         Ingredients,
@@ -61,3 +64,32 @@ class RecipesIngredient(models.Model):
     amount = models.IntegerField(
         verbose_name='Количество ингредиента'
     )
+
+    class Meta:
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиента'
+        ordering = ('-ingredient',)
+
+    def __str__(self):
+        return f'{self.amount} {self.ingredient}'
+
+
+class RecipesTags(models.Model):
+    recipe = models.ForeignKey(
+        Recipes,
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+    )
+    tags = models.ForeignKey(
+        Tags,
+        verbose_name='Тег',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ('-tags',)
+
+    def __str__(self):
+        return f'У рецепта {self.recipe} есть {self.tags}'
