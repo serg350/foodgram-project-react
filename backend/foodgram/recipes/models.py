@@ -30,15 +30,15 @@ class Recipes(models.Model):
     #    on_delete=models.CASCADE,
     #    verbose_name='Автор',
     #)
-    tags = models.ManyToManyField(
-        Tags,
-        through='RecipesTags',
-        verbose_name='Теги'
-    )
     ingredients = models.ManyToManyField(
         Ingredients,
         through='RecipesIngredient',
         verbose_name='Ингридиенты'
+    )
+    tags = models.ManyToManyField(
+        Tags,
+        through='RecipesTags',
+        verbose_name='Теги'
     )
 
     class Meta:
@@ -71,7 +71,7 @@ class RecipesIngredient(models.Model):
         ordering = ('-ingredient',)
 
     def __str__(self):
-        return f'{self.amount} {self.ingredient}'
+        return f'{self.amount} {self.ingredient.measurement_unit} {self.ingredient}'
 
 
 class RecipesTags(models.Model):

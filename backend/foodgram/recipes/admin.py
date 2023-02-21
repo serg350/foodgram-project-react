@@ -9,20 +9,21 @@ class RecipesIngredientInLine(admin.TabularInline):
     extra = 1
 
 
-class RecipesTagsInLines(admin.TabularInline):
+class RecipesTagInLines(admin.TabularInline):
     model = Recipes.tags.through
     extra = 1
+
 
 @admin.register(Recipes)
 class RecipesAdmin(admin.ModelAdmin):
     list_display = ('name', 'text', 'cooking_time')
     empty_value_display = '-пусто-'
-    inlines = (RecipesIngredientInLine, RecipesTagsInLines)
+    inlines = (RecipesIngredientInLine, RecipesTagInLines)
 
 
-@admin.register(RecipesIngredient)
-class RecipesIngredientAdmin(admin.ModelAdmin):
-    list_display = ('ingredient', 'recipe', 'amount')
-    empty_value_display = '-пусто-'
+#@admin.register(RecipesIngredient)
+#class RecipesIngredientAdmin(admin.ModelAdmin):
+#    list_display = ('ingredient', 'recipe', 'amount')
+#    empty_value_display = '-пусто-'
 
 
