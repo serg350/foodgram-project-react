@@ -4,14 +4,16 @@ from django.db import models
 class Tags(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name='Название тега'
+        verbose_name='Название тега',
+        help_text='Название тега'
     )
     color = models.CharField(
         max_length=7,
-        verbose_name='Цвет'
+        verbose_name='Цвет',
+        help_text='Цвет для тега'
     )
     slug = models.SlugField(
-        max_length=200,
+        max_length=50,
         #db_index=True Зачем?
         unique=True,
         verbose_name='slug'

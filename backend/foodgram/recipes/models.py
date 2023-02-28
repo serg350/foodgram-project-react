@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.conf import settings
 
@@ -11,7 +12,6 @@ class Recipes(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
-        blank=True,
         upload_to='recipes/',
         verbose_name='Изображение'
     )
@@ -19,26 +19,28 @@ class Recipes(models.Model):
         verbose_name='Описание'
     )
     cooking_time = models.IntegerField(
+        validators=(MinValueValidator(1),),
         verbose_name='Время приготовления блюда'
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации'
     )
-    #author = models.ForeignKey(
-    #    settings.AUTH_USER_MODEL,
-    #    on_delete=models.CASCADE,
-    #    verbose_name='Автор',
-    #)
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
     ingredients = models.ManyToManyField(
         Ingredients,
         through='RecipesIngredient',
+        related_name='recipes',
         verbose_name='Ингридиенты'
     )
     tags = models.ManyToManyField(
         Tags,
-        blank=True,
         through='RecipesTags',
+        related_name='recipes',
         verbose_name='Теги'
     )
 
@@ -55,7 +57,7 @@ class RecipesIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredients,
         verbose_name='Ингридиенты',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
     )
     recipe = models.ForeignKey(
         Recipes,
@@ -63,6 +65,7 @@ class RecipesIngredient(models.Model):
         on_delete=models.CASCADE,
     )
     amount = models.IntegerField(
+        validators=(MinValueValidator(1),),
         verbose_name='Количество ингредиента'
     )
 
@@ -94,3 +97,61 @@ class RecipesTags(models.Model):
 
     def __str__(self):
         return f'У рецепта {self.recipe} есть {self.tags}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='shopping_user',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='in_shopping_list',
+        verbose_name='Список рецептов'
+    )
+
+    class Meta:
+        verbose_name = 'список покупок'
+        verbose_name_plural = 'Список покупок'
+
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_shopping_list_recipe'
+            ),
+        )
+
+    def __str__(self):
+        return f'Рецепт {self.recipe} в списке покупок у {self.user}'
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE,
+        related_name='in_favorite'
+    )
+
+    class Meta:
+        verbose_name = 'избранное'
+        verbose_name_plural = 'Избранное'
+
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_favorite_recipe'
+            ),
+        )
+
+    def __str__(self):
+        return f'Рецепт {self.recipe} в избранном у {self.user}'
