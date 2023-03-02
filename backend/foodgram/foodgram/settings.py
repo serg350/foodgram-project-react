@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 from datetime import timedelta
 import os
 
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +31,12 @@ SECRET_KEY = 'hmhir6q=o3$i6&a1)$@2vgqozd*h8)wdif03b9+j93@qj@iy(p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'backend',
+    'db'
+]
 
 
 # Application definition
@@ -131,12 +142,20 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    #'DEFAULT_PAGINATION_CLASS': [
+    #    'api.pagination.CustomPaginator',
+    #],
+    #'PAGE_SIZE': 6,
+    #'SEARCH_PARAM': 'name',
 }
 
 
@@ -155,8 +174,6 @@ DJOSER = {
     #'SERIALIZERS': {},
 }
 
-#CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
+
 CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]

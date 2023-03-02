@@ -16,7 +16,7 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=150,
         unique=True,
-        #validators=(validate_username,),
+        # validators=(validate_username,),
         error_messages={'unique': "Такой пользователь уже зарегистрирован."},
         verbose_name='Имя пользователя'
     )
@@ -26,7 +26,7 @@ class User(AbstractUser):
     )
     last_name = models.CharField(
         max_length=150,
-        blank = False
+        blank=False
     )
     email = models.EmailField(
         max_length=254,
