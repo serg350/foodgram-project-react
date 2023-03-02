@@ -1,14 +1,19 @@
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F
-from rest_framework import serializers
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers, status
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from ingredients.models import Ingredients
 from recipes.models import Recipes, Favorite, ShoppingCart, RecipesIngredient
 from tags.models import Tags
-from users.models import User, Follower
+from users.models import Follower
+
+User = get_user_model()
 
 
 class CustomUserSerializer(UserSerializer):
@@ -28,6 +33,7 @@ class CustomUserSerializer(UserSerializer):
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """[POST] Создание нового пользователя."""
+
     class Meta:
         model = User
         fields = ('email', 'id', 'username',
@@ -48,6 +54,48 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             )
         return obj
 
+
+#class PasswordSerializers(serializers.ModelSerializer):
+#    model = User
+#
+#    old_password = serializers.CharField(required=True)
+#    new_password = serializers.CharField(required=True)
+
+
+class FollowSerializers(serializers.ModelSerializer):
+    recipes_count = SerializerMethodField()
+    recipes = SerializerMethodField()
+
+    class Meta:
+        fields = '__all__'
+        model = Follower
+
+    def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if Follower.objects.filter(author=author, user=user).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Вы не можете подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
+        return serializer.data
 
 
 class IngredientsSerializers(serializers.ModelSerializer):
@@ -145,6 +193,41 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def validate_ingredients(self, value):
+        ingredients = value
+        if not ingredients:
+            raise ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
+        ingredients_list = []
+        for item in ingredients:
+            ingredient = get_object_or_404(Ingredients, id=item['id'])
+            if ingredient in ingredients_list:
+                raise ValidationError({
+                    'ingredients': 'Ингридиенты не могут повторяться!'
+                })
+            if int(item['amount']) <= 0:
+                raise ValidationError({
+                    'amount': 'Количество ингредиента должно быть больше 0!'
+                })
+            ingredients_list.append(ingredient)
+        return value
+
+    def validate_tags(self, value):
+        tags = value
+        if not tags:
+            raise ValidationError({
+                'tags': 'Нужно выбрать хотя бы один тег!'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise ValidationError({
+                    'tags': 'Теги должны быть уникальными!'
+                })
+            tags_list.append(tag)
+        return value
 
     @transaction.atomic
     def create_ingredients_amounts(self, ingredients, recipe):

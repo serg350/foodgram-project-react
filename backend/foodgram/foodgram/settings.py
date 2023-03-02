@@ -16,6 +16,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+import users
+
 load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'djoser',
     'recipes',
@@ -140,6 +143,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -166,12 +176,18 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
-    #'LOGIN_FIELD': 'email',
-    #'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    #'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    #'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    #'SEND_CONFIRMATION_EMAIL': True,
-    #'SERIALIZERS': {},
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+    },
+#
+    #'PERMISSIONS': {
+    #    'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+    #    'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    #},
+    #'HIDE_USERS': False,
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
