@@ -1,21 +1,24 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from djoser.serializers import PasswordSerializer
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from api.pagination import CustomPagination
 from api.serializers import RecipesSerializers, IngredientsSerializers, TagsSerializers, CustomUserSerializer, \
-    RecipesWriteSerializer, CustomUserCreateSerializer
+    RecipesWriteSerializer, CustomUserCreateSerializer, RecipeShortSerializer
 from ingredients.models import Ingredients
-from recipes.models import Recipes
+from recipes.models import Recipes, Favorite, ShoppingCart, RecipesIngredient
 from tags.models import Tags
 from users.models import User
 
 
 class CustomUserListView(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    #serializer_class = CustomUserSerializer
 
     @action(detail=True, methods=['post'], url_path='set_password')
     def set_password(self, request, pk=None):
@@ -37,7 +40,7 @@ class CustomUserListView(viewsets.ModelViewSet):
 
 class RecipesListView(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
-    #serializer_class = RecipesSerializers
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -46,6 +49,64 @@ class RecipesListView(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post', 'delete'], url_path='favorite')
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return self.add_to(Favorite, request.user, pk)
+        else:
+            return self.delete_from(Favorite, request.user, pk)
+
+    @action(detail=True, methods=['post', 'delete'], url_path='shopping_cart')
+    def shopping_cart(self, request, pk):
+        if request.method == 'POST':
+            return self.add_to(ShoppingCart, request.user, pk)
+        else:
+            return self.delete_from(ShoppingCart, request.user, pk)
+
+    def add_to(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipes, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeShortSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_from(self, model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже удален!'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['GET'], url_path='download_shopping_cart')
+    def get_download_shopping_cart(self, request, pk):
+        user = request.user
+        if not user.shopping_cart.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+        ingredients = RecipesIngredient.objects.filter(
+            recipe__shopping_cart__user == request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+        shopping_list = (
+            f'Список покупок для: {user.get_full_name()}\n\n'
+        )
+        shopping_list += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        shopping_list += f'\n\nFoodgram'
+        filename = f'{user.username}_shopping_list.txt'
+        response = HttpResponse(shopping_list, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
 
 
 class IngredientsListView(viewsets.ModelViewSet):

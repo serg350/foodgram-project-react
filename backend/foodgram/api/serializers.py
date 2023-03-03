@@ -20,7 +20,7 @@ class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        fields = 'email', 'id', 'first_name', 'last_name', 'is_subscribed'
+        fields = 'email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed'
         model = User
 
     def get_is_subscribed(self, obj):
@@ -116,13 +116,6 @@ class RecipesSerializers(serializers.ModelSerializer):
         queryset=Tags.objects.all(),
         many=True
     )
-
-    # ingredients = serializers.SlugRelatedField(
-    #    slug_field='name',
-    #    read_only=True,
-    #    default=IngredientsSerializers,
-    #    many=True
-    # )
     author = CustomUserSerializer(read_only=True)
     ingredients = SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
@@ -178,8 +171,6 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
     author = CustomUserSerializer(read_only=True)
-
-    # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Recipes

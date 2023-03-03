@@ -161,18 +161,6 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    #'DEFAULT_PAGINATION_CLASS': [
-    #    'api.pagination.CustomPaginator',
-    #],
-    #'PAGE_SIZE': 6,
-    #'SEARCH_PARAM': 'name',
-}
-
-
-SIMPLE_JWT = {
-    # Устанавливаем срок жизни токена
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-   'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 DJOSER = {
@@ -182,12 +170,6 @@ DJOSER = {
         'user': 'api.serializers.CustomUserSerializer',
         'current_user': 'api.serializers.CustomUserSerializer',
     },
-#
-    #'PERMISSIONS': {
-    #    'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-    #    'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    #},
-    #'HIDE_USERS': False,
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
