@@ -1,30 +1,19 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-
-from .models import User, Follower
+from .models import Follower, User
 
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
+        'username',
         'id',
-        'username',
         'email',
         'first_name',
         'last_name',
-        'is_staff',
-        'role',
-        'is_active'
     )
-    list_editable = ('role', 'is_active')
-    search_fields = (
-        'email',
-        'first_name',
-        'last_name',
-        'username',
-    )
-    list_filter = ('role', 'is_staff', 'is_active')
+    list_filter = ('email', 'first_name')
     empty_value_display = '-пусто-'
 
 

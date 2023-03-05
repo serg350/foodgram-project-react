@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.contrib.admin import display
 
-from recipes.models import Recipes, RecipesIngredient, RecipesTags, ShoppingCart, Favorite
+from recipes.models import (Favorite, Recipes, RecipesIngredient, RecipesTags,
+                            ShoppingCart)
 from tags.models import Tags
 
 
@@ -16,9 +18,15 @@ class RecipesTagInLines(admin.TabularInline):
 
 @admin.register(Recipes)
 class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'text', 'cooking_time')
+    list_display = ('name', 'id', 'author', 'added_in_favorites')
+    readonly_fields = ('added_in_favorites',)
+    list_filter = ('author', 'name', 'tags',)
     empty_value_display = '-пусто-'
     inlines = (RecipesIngredientInLine, RecipesTagInLines)
+
+    @display(description='Количество в избранных')
+    def added_in_favorites(self, obj):
+        return obj.favorites.count()
 
 
 @admin.register(ShoppingCart)
@@ -32,9 +40,10 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
     empty_value_display = '-пусто-'
 
-#@admin.register(RecipesIngredient)
-#class RecipesIngredientAdmin(admin.ModelAdmin):
-#    list_display = ('ingredient', 'recipe', 'amount')
-#    empty_value_display = '-пусто-'
+
+@admin.register(RecipesIngredient)
+class RecipesIngredientAdmin(admin.ModelAdmin):
+    list_display = ('ingredient', 'recipe', 'amount')
+    empty_value_display = '-пусто-'
 
 

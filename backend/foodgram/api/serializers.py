@@ -2,16 +2,16 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
-from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from ingredients.models import Ingredients
-from recipes.models import Recipes, Favorite, ShoppingCart, RecipesIngredient
+from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 from tags.models import Tags
-from users.models import Follower
+from users.models import Follower, User
 
 User = get_user_model()
 
@@ -24,6 +24,7 @@ class CustomUserSerializer(UserSerializer):
         model = User
 
     def get_is_subscribed(self, obj):
+        print(self.context.get('request'))
         return (
                 self.context.get('request').user.is_authenticated
                 and Follower.objects.filter(user=self.context['request'].user,
@@ -53,49 +54,6 @@ class CustomUserCreateSerializer(UserCreateSerializer):
                 {'username': 'Вы не можете использовать этот username.'}
             )
         return obj
-
-
-#class PasswordSerializers(serializers.ModelSerializer):
-#    model = User
-#
-#    old_password = serializers.CharField(required=True)
-#    new_password = serializers.CharField(required=True)
-
-
-class FollowSerializers(serializers.ModelSerializer):
-    recipes_count = SerializerMethodField()
-    recipes = SerializerMethodField()
-
-    class Meta:
-        fields = '__all__'
-        model = Follower
-
-    def validate(self, data):
-        author = self.instance
-        user = self.context.get('request').user
-        if Follower.objects.filter(author=author, user=user).exists():
-            raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        if user == author:
-            raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST
-            )
-        return data
-
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
-
-    def get_recipes(self, obj):
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
-        if limit:
-            recipes = recipes[:int(limit)]
-        serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
-        return serializer.data
 
 
 class IngredientsSerializers(serializers.ModelSerializer):
@@ -283,8 +241,24 @@ class SubscribeSerializer(CustomUserSerializer):
         )
         read_only_fields = ('email', 'username')
 
+    def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if Follower.objects.filter(author=author, user=user).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Вы не можете подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
 
     def get_recipes(self, obj):
         request = self.context.get('request')

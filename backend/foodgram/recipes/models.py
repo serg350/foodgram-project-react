@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.conf import settings
 
-from tags.models import Tags
 from ingredients.models import Ingredients
+from tags.models import Tags
 
 
 class Recipes(models.Model):
@@ -28,6 +28,7 @@ class Recipes(models.Model):
     )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        related_name='recipes',
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
