@@ -18,7 +18,7 @@ def ingredients_import():
 
 
 def tags_import():
-    with open('static/data/ingredients.csv', encoding='utf-8') as file:
+    with open('static/data/tags.csv', encoding='utf-8') as file:
         reader = csv.reader(file)
         next(reader)  # Advance past the header
         Tags.objects.all().delete()
