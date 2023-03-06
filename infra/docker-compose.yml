@@ -12,8 +12,8 @@ services:
     image: serg3502873/foodgram-backend:latest
     restart: always
     volumes:
-      - static_value:/app/static-backend/
-      - media_value:/app/media-backend/
+      - static_value:/app/static_backend/
+      - media_value:/app/media_backend/
     depends_on:
       - db
     env_file:
@@ -33,8 +33,8 @@ services:
       - ./foodgramproject.crt:/etc/nginx/foodgramproject.crt
       - ./foodgramproject.key:/etc/nginx/foodgramproject.key
       - ../frontend/build:/usr/share/nginx/html/
-      - static_value:/var/html/static-backend/
-      - media_value:/var/html/media-backend/
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
       #- redoc:/usr/share/nginx/html/api/docs/
     depends_on:
       - backend
