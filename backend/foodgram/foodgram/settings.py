@@ -37,7 +37,9 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'backend',
-    'db'
+    'db',
+    '51.250.68.98',
+    'sergeyaqua.ddns.net'
 ]
 
 
