@@ -93,8 +93,8 @@ sudo docker-compose exec backend python manage.py runscript import
 
 - Для остановки контейнеров Docker:
 ```
-sudo docker compose down -v      # с их удалением
-sudo docker compose stop         # без удаления
+sudo docker-compose down -v      # с их удалением
+sudo docker-compose stop         # без удаления
 ```
 
 ### После каждого обновления репозитория (push в ветку master) будет происходить:
