@@ -76,7 +76,9 @@ class RecipesIngredient(models.Model):
         ordering = ('-ingredient',)
 
     def __str__(self):
-        return f'{self.amount} {self.ingredient.measurement_unit} {self.ingredient}'
+        return (f'{self.amount}'
+                f' {self.ingredient.measurement_unit}'
+                f' {self.ingredient}')
 
 
 class RecipesTags(models.Model):

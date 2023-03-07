@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.serializers import PasswordSerializer
 from rest_framework import status, viewsets
@@ -35,9 +35,17 @@ class CustomUserListView(viewsets.ModelViewSet):
             return CustomUserSerializer
         return CustomUserCreateSerializer
 
-    @action(detail=False, pagination_class=None, methods=['get'], url_path='me')
+    @action(
+        detail=False,
+        pagination_class=None,
+        methods=['get'],
+        url_path='me'
+    )
     def me(self, request):
-        serializer = CustomUserSerializer(request.user, context={'request': request})
+        serializer = CustomUserSerializer(
+            request.user,
+            context={'request': request}
+        )
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
@@ -49,11 +57,15 @@ class CustomUserListView(viewsets.ModelViewSet):
             user.set_password(serializer.validated_data['password'])
             user.save()
             return Response({'status': 'password set'})
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated], url_path='subscribe')
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated],
+        url_path='subscribe'
+    )
     def subscribe(self, request, **kwargs):
         user = request.user
         author = get_object_or_404(User, id=kwargs['pk'])
@@ -106,15 +118,13 @@ class RecipesListView(viewsets.ModelViewSet):
     def favorite(self, request, pk):
         if request.method == 'POST':
             return self.add_to(Favorite, request.user, pk)
-        else:
-            return self.delete_from(Favorite, request.user, pk)
+        return self.delete_from(Favorite, request.user, pk)
 
     @action(detail=True, methods=['post', 'delete'], url_path='shopping_cart')
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
             return self.add_to(ShoppingCart, request.user, pk)
-        else:
-            return self.delete_from(ShoppingCart, request.user, pk)
+        return self.delete_from(ShoppingCart, request.user, pk)
 
     def add_to(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():

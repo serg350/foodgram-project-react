@@ -20,7 +20,12 @@ class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        fields = 'email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed'
+        fields = ('email',
+                  'id',
+                  'username',
+                  'first_name',
+                  'last_name',
+                  'is_subscribed')
         model = User
 
     def get_is_subscribed(self, obj):
@@ -93,26 +98,29 @@ class RecipesSerializers(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         return (
-                self.context.get('request').user.is_authenticated
-                and ShoppingCart.objects.filter(
-            user=self.context['request'].user,
-            recipe=obj).exists()
+            self.context.get('request').user.is_authenticated
+            and ShoppingCart.objects.filter(
+                user=self.context['request'].user,
+                recipe=obj).exists()
         )
 
     def get_ingredients(self, obj):
         recipe = obj
-        ingredients = recipe.ingredients.values(
-            'id',
-            'name',
-            'measurement_unit',
-            amount=F('recipesingredient__amount')
+        return (
+            recipe.ingredients.values(
+                'id',
+                'name',
+                'measurement_unit',
+                amount=F('recipesingredient__amount')
+            )
         )
-        return ingredients
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['tags'] = TagsSerializers(instance.tags, many=True).data
-        # response['ingredients'] = IngredientsSerializers(instance.ingredients, many=True).data
+        response['tags'] = TagsSerializers(
+            instance.tags,
+            many=True
+        ).data
         return response
 
 
@@ -125,7 +133,10 @@ class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipesWriteSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tags.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tags.objects.all(),
+        many=True
+    )
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
     author = CustomUserSerializer(read_only=True)
@@ -258,7 +269,6 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-
 
     def get_recipes(self, obj):
         request = self.context.get('request')

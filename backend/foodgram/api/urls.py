@@ -6,7 +6,11 @@ from api.views import (CustomUserListView, IngredientsListView,
 
 api_v1_router = DefaultRouter()
 api_v1_router.register(r'recipes', RecipesListView, basename='recipes')
-api_v1_router.register('ingredients', IngredientsListView, basename='ingredients')
+api_v1_router.register(
+    'ingredients',
+    IngredientsListView,
+    basename='ingredients'
+)
 api_v1_router.register('tags', TagsListView, basename='tags')
 api_v1_router.register('users', CustomUserListView, basename='users')
 

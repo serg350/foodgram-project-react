@@ -1,9 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import display
 
-from recipes.models import (Favorite, Recipes, RecipesIngredient, RecipesTags,
-                            ShoppingCart)
-from tags.models import Tags
+from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 
 
 class RecipesIngredientInLine(admin.TabularInline):
@@ -45,5 +43,3 @@ class FavoriteAdmin(admin.ModelAdmin):
 class RecipesIngredientAdmin(admin.ModelAdmin):
     list_display = ('ingredient', 'recipe', 'amount')
     empty_value_display = '-пусто-'
-
-
