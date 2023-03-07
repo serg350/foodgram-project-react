@@ -21,6 +21,7 @@ from users.models import Follower
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
+from .permissions import IsAdminOrReadOnly
 
 User = get_user_model()
 
@@ -163,6 +164,7 @@ class RecipesListView(viewsets.ModelViewSet):
 class IngredientsListView(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializers
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
 
@@ -170,3 +172,4 @@ class IngredientsListView(viewsets.ModelViewSet):
 class TagsListView(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializers
+    permission_classes = (IsAdminOrReadOnly,)

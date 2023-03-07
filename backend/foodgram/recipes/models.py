@@ -72,7 +72,7 @@ class RecipesIngredient(models.Model):
 
     class Meta:
         verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиента'
+        verbose_name_plural = 'Ингридиенты'
         ordering = ('-ingredient',)
 
     def __str__(self):
@@ -115,7 +115,7 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        verbose_name = 'список покупок'
+        verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
 
         constraints = (
@@ -144,7 +144,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        verbose_name = 'избранное'
+        verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
         constraints = (
