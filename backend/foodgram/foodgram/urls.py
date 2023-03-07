@@ -12,7 +12,6 @@ urlpatterns = [
         TemplateView.as_view(template_name='redoc.html'),
         name='redoc'
     ),
-    path('static/', include('about.urls', namespace='static')),
 ]
 
 if settings.DEBUG:
