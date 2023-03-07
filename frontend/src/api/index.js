@@ -332,7 +332,7 @@ class Api {
   getTags () {
     const token = localStorage.getItem('token')
     return fetch(
-      this._url + `/api/tags/`,
+      `/api/tags/`,
       {
         method: 'GET',
         headers: {
