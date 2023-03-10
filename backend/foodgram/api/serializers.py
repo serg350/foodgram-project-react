@@ -9,9 +9,9 @@ from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
-
 from tags.models import Tags
 from users.models import Follower
+
 from foodgram.settings import INVALID_USERNAMES
 
 User = get_user_model()
