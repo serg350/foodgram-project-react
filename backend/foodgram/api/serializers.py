@@ -4,8 +4,6 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-
-from foodgram.settings import INVALID_USERNAMES
 from ingredients.models import Ingredients
 from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 from rest_framework import serializers, status
@@ -13,6 +11,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from tags.models import Tags
 from users.models import Follower
+
+from foodgram.settings import INVALID_USERNAMES
 
 User = get_user_model()
 
