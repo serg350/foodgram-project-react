@@ -1,6 +1,17 @@
 ## Проект Foodgram
 
-![workflow](https://github.com/serg350/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+
+# API для проекта YaMDB в контейнере Docker
+[![foodgram-project workflow](https://github.com/serg350/foodgram-project-react/actions/workflows/foodgram-workflow.yml/badge.svg?branch=master)](https://github.com/serg350/foodgram-project-react/actions/workflows/foodgram-workflow.yml)
+
+[![Python](https://img.shields.io/badge/-Python-464646?style=flat-square&logo=Python)](https://www.python.org/)
+[![Nginx](https://img.shields.io/badge/-NGINX-464646?style=flat-square&logo=NGINX)](https://nginx.org/ru/)
+[![gunicorn](https://img.shields.io/badge/-gunicorn-464646?style=flat-square&logo=gunicorn)](https://gunicorn.org/)
+[![docker](https://img.shields.io/badge/-Docker-464646?style=flat-square&logo=docker)](https://www.docker.com/)
+[![GitHub%20Actions](https://img.shields.io/badge/-GitHub%20Actions-464646?style=flat-square&logo=GitHub%20actions)](https://github.com/features/actions)
+[![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat-square&logo=Yandex.Cloud)](https://cloud.yandex.ru/)
+[![DjangoREST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=for-the-badge&logo=django&logoColor=white&color=ff1709&labelColor=gray)](https://www.django-rest-framework.org/)
+[![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
 Foodgram - продуктовый помощник с базой кулинарных рецептов. Позволяет публиковать рецепты, сохранять избранные, а также формировать список покупок для выбранных рецептов. Можно подписываться на любимых авторов.
 
@@ -82,8 +93,8 @@ sudo docker-compose exec backend python manage.py runscript import
 
 - Для остановки контейнеров Docker:
 ```
-sudo docker compose down -v      # с их удалением
-sudo docker compose stop         # без удаления
+sudo docker-compose down -v      # с их удалением
+sudo docker-compose stop         # без удаления
 ```
 
 ### После каждого обновления репозитория (push в ветку master) будет происходить:
