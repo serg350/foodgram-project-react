@@ -61,28 +61,29 @@ class CustomUserListView(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=[IsAuthenticated],
         url_path='subscribe'
     )
     def subscribe(self, request, **kwargs):
         user = request.user
         author = get_object_or_404(User, id=kwargs['pk'])
+        serializer = SubscribeSerializer(author,
+                                         data=request.data,
+                                         context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        Follower.objects.create(user=user, author=author)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'POST':
-            serializer = SubscribeSerializer(author,
-                                             data=request.data,
-                                             context={"request": request})
-            serializer.is_valid(raise_exception=True)
-            Follower.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(Follower,
-                                             user=user,
-                                             author=author)
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    @subscribe.mapping.delete
+    def subscribe_delete(self, request, **kwargs):
+        user = request.user
+        author = get_object_or_404(User, id=kwargs['pk'])
+        subscription = get_object_or_404(Follower,
+                                         user=user,
+                                         author=author)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,

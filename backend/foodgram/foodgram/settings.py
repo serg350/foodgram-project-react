@@ -146,3 +146,6 @@ DJOSER = {
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_URLS_REGEX = r'^/api/.*$'
+
+INVALID_USERNAMES = ['me', 'set_password',
+                     'subscriptions', 'subscribe']

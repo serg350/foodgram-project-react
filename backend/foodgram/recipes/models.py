@@ -17,7 +17,7 @@ class Recipes(models.Model):
     text = models.TextField(
         verbose_name='Описание'
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1),),
         verbose_name='Время приготовления блюда'
     )
@@ -39,7 +39,6 @@ class Recipes(models.Model):
     )
     tags = models.ManyToManyField(
         Tags,
-        through='RecipesTags',
         related_name='recipes',
         verbose_name='Теги'
     )
@@ -64,7 +63,7 @@ class RecipesIngredient(models.Model):
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
     )
-    amount = models.IntegerField(
+    amount = models.PositiveSmallIntegerField(
         validators=(MinValueValidator(1),),
         verbose_name='Количество ингредиента'
     )
@@ -78,27 +77,6 @@ class RecipesIngredient(models.Model):
         return (f'{self.amount}'
                 f' {self.ingredient.measurement_unit}'
                 f' {self.ingredient}')
-
-
-class RecipesTags(models.Model):
-    recipe = models.ForeignKey(
-        Recipes,
-        verbose_name='Рецепт',
-        on_delete=models.CASCADE,
-    )
-    tags = models.ForeignKey(
-        Tags,
-        verbose_name='Тег',
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
-        ordering = ('-tags',)
-
-    def __str__(self):
-        return f'У рецепта {self.recipe} есть {self.tags}'
 
 
 class ShoppingCart(models.Model):

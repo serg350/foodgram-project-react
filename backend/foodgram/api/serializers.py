@@ -4,13 +4,15 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+
+from foodgram.settings import INVALID_USERNAMES
 from ingredients.models import Ingredients
 from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 from tags.models import Tags
-from users.models import Follower, User
+from users.models import Follower
 
 User = get_user_model()
 
@@ -28,7 +30,6 @@ class CustomUserSerializer(UserSerializer):
         model = User
 
     def get_is_subscribed(self, obj):
-        print(self.context.get('request'))
         return (
                 self.context.get('request').user.is_authenticated
                 and Follower.objects.filter(user=self.context['request'].user,
@@ -51,8 +52,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         }
 
     def validate(self, obj):
-        invalid_usernames = ['me', 'set_password',
-                             'subscriptions', 'subscribe']
+        invalid_usernames = INVALID_USERNAMES
         if self.initial_data.get('username') in invalid_usernames:
             raise serializers.ValidationError(
                 {'username': 'Вы не можете использовать этот username.'}
@@ -213,7 +213,6 @@ class RecipesWriteSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         instance = super().update(instance, validated_data)
-        instance.tags.clear()
         instance.tags.set(tags)
         instance.ingredients.clear()
         self.create_ingredients_amounts(recipe=instance,
