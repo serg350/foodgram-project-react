@@ -12,7 +12,7 @@ api_v1_router.register(
     basename='ingredients'
 )
 api_v1_router.register('tags', TagsListView, basename='tags')
-api_v1_router.register('users', CustomUserListView, basename='users')
+api_v1_router.register(r'users/', CustomUserListView, basename='users')
 
 urlpatterns = [
     path('', include(api_v1_router.urls)),
