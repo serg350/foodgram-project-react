@@ -12,6 +12,7 @@ api_v1_router.register(
     basename='ingredients'
 )
 api_v1_router.register('tags', TagsListView, basename='tags')
+api_v1_router.register(r'users/set_password', CustomUserListView)
 api_v1_router.register('users', CustomUserListView, basename='users')
 
 urlpatterns = [
