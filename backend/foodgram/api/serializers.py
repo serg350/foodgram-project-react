@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F
@@ -38,7 +40,6 @@ class CustomUserSerializer(UserSerializer):
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    """[POST] Создание нового пользователя."""
 
     class Meta:
         model = User
@@ -52,6 +53,16 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         }
 
     def validate(self, obj):
+        regex = re.compile(r'^[\w.@+-]+\Z')
+        regex_matches = re.search(regex, str(obj))
+        if not regex_matches:
+            pattern = re.compile(r'[\w.@+-]')
+            unmatched = re.sub(pattern, '', str(obj))
+            raise ValidationError(
+                'Введите корректное имя пользователя.'
+                'Оно может содержать только буквы и символы @/./+/-/_. '
+                f'Обнаружены недопустимые символы: {unmatched}'
+            )
         if self.initial_data.get('username') in INVALID_USERNAMES:
             raise serializers.ValidationError(
                 {'username': 'Вы не можете использовать этот username.'}
