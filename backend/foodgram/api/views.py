@@ -93,7 +93,6 @@ class CustomUserListView(viewsets.ModelViewSet):
 class CustomPasswordUserListView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
-    serializer_class = CustomUserSerializer
 
     def set_password(self, request, pk=None):
         user = self.get_object()
