@@ -3,17 +3,17 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.serializers import SetPasswordSerializer
+from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from api.serializers import (CustomUserCreateSerializer, CustomUserSerializer,
-                             IngredientsSerializers, RecipeShortSerializer,
-                             RecipesSerializers, RecipesWriteSerializer,
-                             SubscribeSerializer, TagsSerializers)
+from api.serializers import (CustomUserSerializer, IngredientsSerializers,
+                             RecipeShortSerializer, RecipesSerializers,
+                             RecipesWriteSerializer, SubscribeSerializer,
+                             TagsSerializers)
 from ingredients.models import Ingredients
 from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
 from tags.models import Tags
@@ -26,28 +26,23 @@ from .permissions import IsAdminOrReadOnly
 User = get_user_model()
 
 
-class CustomUserListView(viewsets.ModelViewSet):
+class CustomUserListView(UserViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return CustomUserSerializer
-        return CustomUserCreateSerializer
+    serializer_class = CustomUserSerializer
 
     @action(
         detail=False,
-        pagination_class=None,
-        methods=['get'],
-        url_path='me'
+        permission_classes=[IsAuthenticated],
     )
-    def me(self, request):
-        serializer = CustomUserSerializer(
-            request.user,
-            context={'request': request}
-        )
-        return Response(serializer.data,
-                        status=status.HTTP_200_OK)
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(following__user=user).all()
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(pages,
+                                         many=True,
+                                         context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
     @action(
         detail=True,
@@ -57,7 +52,7 @@ class CustomUserListView(viewsets.ModelViewSet):
     )
     def subscribe(self, request, **kwargs):
         user = request.user
-        author = get_object_or_404(User, id=kwargs['pk'])
+        author = get_object_or_404(User, id=kwargs['id'])
         serializer = SubscribeSerializer(author,
                                          data=request.data,
                                          context={"request": request})
@@ -74,26 +69,6 @@ class CustomUserListView(viewsets.ModelViewSet):
                                          author=author)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(
-        detail=False,
-        permission_classes=[IsAuthenticated],
-        url_path='subscriptions'
-    )
-    def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(following__user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(pages,
-                                         many=True,
-                                         context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
-
-class CustomPasswordUserListView(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    pagination_class = CustomPagination
-    serializer_class = SetPasswordSerializer
 
 
 class RecipesListView(viewsets.ModelViewSet):

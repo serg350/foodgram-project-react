@@ -28,13 +28,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     'djoser',
+    'django_filters',
+    'django_extensions',
     'recipes',
     'tags',
     'ingredients',
     'users',
-    'django_extensions',
+
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -143,7 +144,7 @@ DJOSER = {
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        'user_list': ['rest_framework.permissions.IsAuthorOrReadOnly'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
     'HIDE_USERS': False,
 }
