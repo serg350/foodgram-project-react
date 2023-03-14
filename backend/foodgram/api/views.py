@@ -14,10 +14,11 @@ from api.serializers import (CustomUserCreateSerializer, CustomUserSerializer,
                              IngredientsSerializers, RecipeShortSerializer,
                              RecipesSerializers, RecipesWriteSerializer,
                              SubscribeSerializer, TagsSerializers)
-from tags.models import Tags
 from ingredients.models import Ingredients
 from recipes.models import Favorite, Recipes, RecipesIngredient, ShoppingCart
+from tags.models import Tags
 from users.models import Follower
+
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
@@ -87,6 +88,22 @@ class CustomUserListView(viewsets.ModelViewSet):
                                          many=True,
                                          context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class CustomPasswordUserListView(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = CustomUserSerializer
+
+    def set_password(self, request, pk=None):
+        user = self.get_object()
+        serializer = PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password'])
+            user.save()
+            return Response({'status': 'password set'})
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecipesListView(viewsets.ModelViewSet):
