@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.serializers import PasswordSerializer
+from djoser.serializers import SetPasswordSerializer
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -93,16 +93,7 @@ class CustomUserListView(viewsets.ModelViewSet):
 class CustomPasswordUserListView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     pagination_class = CustomPagination
-
-    def set_password(self, request, pk=None):
-        user = self.get_object()
-        serializer = PasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            user.set_password(serializer.validated_data['password'])
-            user.save()
-            return Response({'status': 'password set'})
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+    serializer_class = SetPasswordSerializer
 
 
 class RecipesListView(viewsets.ModelViewSet):
