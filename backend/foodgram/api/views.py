@@ -63,7 +63,7 @@ class CustomUserListView(UserViewSet):
     @subscribe.mapping.delete
     def subscribe_delete(self, request, **kwargs):
         user = request.user
-        author = get_object_or_404(User, id=kwargs['pk'])
+        author = get_object_or_404(User, id=kwargs['id'])
         subscription = get_object_or_404(Follower,
                                          user=user,
                                          author=author)
