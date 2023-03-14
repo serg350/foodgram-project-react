@@ -170,6 +170,7 @@ class RecipesListView(viewsets.ModelViewSet):
 class IngredientsListView(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializers
+    pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
