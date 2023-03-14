@@ -178,4 +178,5 @@ class IngredientsListView(viewsets.ModelViewSet):
 class TagsListView(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializers
+    pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
