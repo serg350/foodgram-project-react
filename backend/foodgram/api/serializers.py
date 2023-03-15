@@ -274,3 +274,4 @@ class SubscribeSerializer(CustomUserSerializer):
             recipes = recipes[:int(limit)]
         serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
         return serializer.data
+    
