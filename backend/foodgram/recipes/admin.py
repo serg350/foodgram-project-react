@@ -38,3 +38,4 @@ class FavoriteAdmin(admin.ModelAdmin):
 class RecipesIngredientAdmin(admin.ModelAdmin):
     list_display = ('ingredient', 'recipe', 'amount')
     empty_value_display = '-пусто-'
+    
